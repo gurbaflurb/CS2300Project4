@@ -144,17 +144,83 @@ double solveQuadratic(std::vector<float> matrix, int dimensions, float X) {
     double value;
     std::vector<float>::iterator iter = matrix.begin();
     
-    for(int i = dimensions-1; i > 0; i--) {
+    for(int i = dimensions-1; i > -1; i--) {
         value += (*iter)*(pow(X, i));
+        std::cout << *iter << "*(" << X << ")^" << i<< " + ";
+        iter++;
     }
+    
+    std::cout << std::endl;
 
     return value;
 }
 
 /*
+c = { [ Σ (x^2 *y) * Σ xx ] - [Σ xy * Σ xx^2 ] } /  { [ Σ xx * Σ x^2x^2] - [Σ xx^2 ]^2 }
+solveC function takes in a matrix of the known x values, and of known y values. It then performs a set of equations to solve for the variable c in 
+the quadratic formula
+*/
+float solveC(std::vector<float> XMatrix, std::vector<float> YMatrix) {
+    float c;
+    std::vector<float>::iterator XIter = XMatrix.begin(), YIter = YMatrix.begin();
+    std::vector<float> temp, temp2, temp3, temp4, temp5, temp6, temp7;
+    //[ Σ (x^2 *y) * Σ xx ]
+    for(std::vector<float>::iterator xit = XIter, yit = YIter; xit != XMatrix.end(); xit++){
+        temp.push_back(pow(*xit, 2)*(*yit));
+        yit++;
+    }
+    for(std::vector<float>::iterator xit = XIter; xit != XMatrix.end(); xit++){
+        temp2.push_back((*xit)*(*xit));
+    }
+
+    // [Σ xy * Σ xx^2 ]
+    for(std::vector<float>::iterator xit = XIter, yit = YIter; xit != XMatrix.end(); xit++){
+        temp3.push_back((*xit)*(*yit));
+        yit++;
+    }
+    for(std::vector<float>::iterator xit = XIter; xit != XMatrix.end(); xit++){
+        temp4.push_back(*xit*pow(*xit, 2));
+    }
+
+    // [ Σ xx * Σ x^2x^2]
+    for(std::vector<float>::iterator xit = XIter; xit != XMatrix.end(); xit++){
+        temp5.push_back((*xit)*(*xit));
+    }
+    for(std::vector<float>::iterator xit = XIter; xit != XMatrix.end(); xit++){
+        temp6.push_back(pow(*xit, 2)*pow(*xit, 2));
+    }
+
+    // [Σ xx^2 ]^2
+    for(std::vector<float>::iterator xit = XIter; xit != XMatrix.end(); xit++){
+        temp7.push_back((*xit)*pow(*xit, 2));
+    }
+    // c = { [ Σ (x^2 *y) * Σ xx ] - [Σ xy * Σ xx^2 ] } /  { [ Σ xx * Σ x^2x^2] - [Σ xx^2 ]^2 }
+    c = ((sumValues(temp)*sumValues(temp2)) - (sumValues(temp3)*sumValues(temp4)))/((sumValues(temp5)*sumValues(temp6))-(pow(sumValues(temp7), 2)));
+    return c;
+}
+
+/*
+b = { [ Σ xy * Σ x^2x^2 ] - [Σ x^2y * Σ xx^2 ] } /  { [ Σ xx * Σ x^2x^2] - [Σ xx^2 ]^2 }
+solveB function takes in a matrix with all the known x values and a matrix with all known y values, and performs a set of equations to solve for the
+b variable.
+*/
+float solveB(std::vector<float> XMatrix, std::vector<float> YMatrix) {
+    float b;
+
+    return b;
+}
+
+/*
+a =  [ Σ y / n ] - { b *  [ Σ x / n ] } -  { a * [ Σ x^2  / n ]  }
+solveA function takes in a matrix with all the known values of x, and a matrix with all the known y values, the number of elements total, the B variable
+
+*/
+
+/*
 start of main
 */
 int main(int argc, char **argv) {
+    matrixMath::parseArgs(argc, argv);
     float meanX, meanY, sumX, sumY;
     float y, x, b0, b1;
     std::vector<float> independantVars, dependentVars;
@@ -184,9 +250,9 @@ int main(int argc, char **argv) {
     std::cout << std::endl;
     
     // Quadratic Time
+    // What the formula should be in the end: -505.682 X^2 +16792.803 X -20891.667
     quadraticMatrix = buildMatrix(independantVars, dependentVars, 10);
-    quadraticSolved = matrixMath::runGaussian("Quadratic Run", quadraticMatrix, 10);
-    std::cout << "Quadratic\n15 years projected salary: $" << solveQuadratic(quadraticSolved, 10, 15) << std::endl;
+    std::cout << "Quadratic\n15 years projected salary: $" << solveC(independantVars, dependentVars) << std::endl;
 
     return 0;
 }

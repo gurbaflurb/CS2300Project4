@@ -145,8 +145,10 @@ std::vector<float> matrixMath::gaussianElimination(std::vector<float> matrix, in
     std::vector<float> newMatrix;
     std::vector<float> tempMatrix;
     matrixMath::pivot(matrix, dimensions);
-    std::cout << "\nAfter pivot" << std::endl;
-    matrixMath::printMatrix(matrix, dimensions);
+    if(verbose){
+        std::cout << "\nAfter pivot" << std::endl;
+        matrixMath::printMatrix(matrix, dimensions);
+    }
     std::vector<float>::iterator it = matrix.begin();
     std::vector<float>::iterator next = it+dimensions+1;
     std::vector<float>::iterator nextColumn = next;
@@ -214,10 +216,14 @@ std::vector<float> matrixMath::solveMatrix(std::vector<float> matrix, int dimens
         count++;
     }
     for(int i = dimensions-1; i > -1; i--) {
-        std::cout << solvedValue[i] << std::endl;
+        if(verbose){
+            std::cout << solvedValue[i] << std::endl;
+        }
         returnMatrix.push_back(solvedValue[i]);
     }
-    std::cout << std::endl;
+    if(verbose) {
+        std::cout << std::endl;
+    }
     return returnMatrix;
 }
 
@@ -249,11 +255,15 @@ void matrixMath::parseArgs(int argc, char **argv) {
 runGaussian function simply takes in the matrix name, and two file names for the files to be opened. It then runs gaussian elimination on the matrix
 */
 std::vector<float> matrixMath::runGaussian(std::string matrixRun, std::vector<float> matrix, int dimensions) {
-    std::cout << matrixRun << std::endl;
-    matrixMath::printMatrix(matrix, dimensions);
+    if(verbose){
+        std::cout << matrixRun << std::endl;
+        matrixMath::printMatrix(matrix, dimensions);
+    }
     matrix = matrixMath::gaussianElimination(matrix, dimensions);
-    std::cout << "\nAfter Gaussian" << std::endl;
-    matrixMath::printMatrix(matrix, dimensions);
-    std::cout << "\nSolved values from the matrix" << std::endl;
+    if(verbose) {
+        std::cout << "\nAfter Gaussian" << std::endl;
+        matrixMath::printMatrix(matrix, dimensions);
+        std::cout << "\nSolved values from the matrix" << std::endl;
+    }
     return matrixMath::solveMatrix(matrix, dimensions);
 }
