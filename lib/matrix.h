@@ -15,11 +15,11 @@ namespace matrixMath {
     std::tuple<std::vector<float>, int> readData(std::string fileName, std::string productFileName);
     std::vector<float> reduce(std::vector<float> matrix, int dimensions, int passThrough);
     std::vector<float> gaussianElimination(std::vector<float> matrix, int dimensions);
+    std::vector<float> solveMatrix(std::vector<float> matrix, int dimensions);
 
-    void runGaussian(std::string matrixRun, std::string file1Name, std::string file2Name);
-    void solveMatrix(std::vector<float> matrix, int dimensions);
+    std::vector<float> runGaussian(std::string matrixRun, std::vector<float> matrix, int dimensions);
     void printMatrix(std::vector<float> matrix, int dimensions);
-    void pivot(std::vector<float> matrix, int dimensions);
+    void pivot(std::vector<float> &matrix, int dimensions);
     void parseArgs(int argc, char **argv);
     void printUsage();
 }

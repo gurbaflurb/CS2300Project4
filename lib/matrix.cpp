@@ -121,7 +121,7 @@ std::vector<float> matrixMath::makeRow(std::vector<float>::iterator firstColumn,
 pivot function takes in a matrix in the form of a vector and an integer for the dimensions of said matrix. Then it attempts to pivot the matrix so that the largest
 value is on top. It then returns the new matrix after the pivot.
 */
-void matrixMath::pivot(std::vector<float> matrix, int dimensions) {
+void matrixMath::pivot(std::vector<float> &matrix, int dimensions) {
     std::vector<float>::iterator firstRow = matrix.begin();
     std::vector<float>::iterator nextRow = matrix.begin()+dimensions+1;
     float temp;
@@ -179,7 +179,8 @@ std::vector<float> matrixMath::gaussianElimination(std::vector<float> matrix, in
 solveMatrix function is passed a matrix and then attempts to solve said matrix by working backwards to determine all the elements in the matrix and then
 solving the systems of equations using such.
 */
-void matrixMath::solveMatrix(std::vector<float> matrix, int dimensions) {
+std::vector<float> matrixMath::solveMatrix(std::vector<float> matrix, int dimensions) {
+    std::vector<float> returnMatrix;
     float solvedValue[dimensions];
     float currentRow[dimensions];
     std::fill_n(solvedValue, dimensions, 1);
@@ -214,8 +215,10 @@ void matrixMath::solveMatrix(std::vector<float> matrix, int dimensions) {
     }
     for(int i = dimensions-1; i > -1; i--) {
         std::cout << solvedValue[i] << std::endl;
+        returnMatrix.push_back(solvedValue[i]);
     }
     std::cout << std::endl;
+    return returnMatrix;
 }
 
 /*
@@ -245,16 +248,12 @@ void matrixMath::parseArgs(int argc, char **argv) {
 /*
 runGaussian function simply takes in the matrix name, and two file names for the files to be opened. It then runs gaussian elimination on the matrix
 */
-void matrixMath::runGaussian(std::string matrixRun, std::string file1Name, std::string file2Name) {
-    std::vector<float> matrix;
-    int matrixDimentions = 0;
-    
+std::vector<float> matrixMath::runGaussian(std::string matrixRun, std::vector<float> matrix, int dimensions) {
     std::cout << matrixRun << std::endl;
-    std::tie(matrix, matrixDimentions) = matrixMath::readData(file1Name, file2Name);
-    matrixMath::printMatrix(matrix, matrixDimentions);
-    matrix = matrixMath::gaussianElimination(matrix, matrixDimentions);
+    matrixMath::printMatrix(matrix, dimensions);
+    matrix = matrixMath::gaussianElimination(matrix, dimensions);
     std::cout << "\nAfter Gaussian" << std::endl;
-    matrixMath::printMatrix(matrix, matrixDimentions);
+    matrixMath::printMatrix(matrix, dimensions);
     std::cout << "\nSolved values from the matrix" << std::endl;
-    matrixMath::solveMatrix(matrix, matrixDimentions);
+    return matrixMath::solveMatrix(matrix, dimensions);
 }

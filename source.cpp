@@ -10,6 +10,7 @@ Desc:
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <cmath>
 #include <tuple>
 #include <string>
 #include "lib/matrix.h"
@@ -120,15 +121,16 @@ std::tuple<float, float> solveB0B1(float meanX, float meanY, float sumX, float s
 buildMatrix function builds the matrix to specification for this assignment. This function takes in the two vectors from the local readData function
 and builds a matrix based on the form x^2, x, 1, y.
 */
-std::vector<float> buildMatrix(std::vector<float> independentMatrix, std::vector<float> dependentMatrix) {
+std::vector<float> buildMatrix(std::vector<float> independentMatrix, std::vector<float> dependentMatrix, int numSize) {
     std::vector<float> returnMatrix;
     std::vector<float>::iterator XIter = independentMatrix.begin();
     std::vector<float>::iterator YIter = dependentMatrix.begin();
 
     for(XIter; XIter != independentMatrix.end(); XIter++) {
-        returnMatrix.push_back((*XIter) * (*XIter));
-        returnMatrix.push_back(*XIter);
-        returnMatrix.push_back(1);
+        for(int i = numSize-1; i >0; i--) {
+            returnMatrix.push_back(pow((*XIter), i));
+        }
+        returnMatrix.push_back(pow(*XIter, 0));
         returnMatrix.push_back(*YIter);
         YIter++;
     }
@@ -136,15 +138,18 @@ std::vector<float> buildMatrix(std::vector<float> independentMatrix, std::vector
 }
 
 /*
-buildQuadratic function takes in a matrix built by build matrix and returns a vector of values out of said matrix
+solveQuadratic function takes in a list of quadratic coefficients, the dimensions, and the X value and attempts to solve the quadratic 
 */
-//MIGHT NOT NEED WE WILL SEE ------------------------------------------------------------------------------------
-std::vector<float> buildQuadratic(std::vector<float> matrix) {
-    std::vector<float> newMatrix;
+double solveQuadratic(std::vector<float> matrix, int dimensions, float X) {
+    double value;
+    std::vector<float>::iterator iter = matrix.begin();
+    
+    for(int i = dimensions-1; i > 0; i--) {
+        value += (*iter)*(pow(X, i));
+    }
 
-    return newMatrix;
+    return value;
 }
-
 
 /*
 start of main
@@ -154,7 +159,8 @@ int main(int argc, char **argv) {
     float y, x, b0, b1;
     std::vector<float> independantVars, dependentVars;
     std::vector<float> XDistances, YDistances;
-    std::vector<float> qudraticMatrix;
+    std::vector<float> quadraticMatrix;
+    std::vector<float> quadraticSolved;
     try
     {
         std::tie(independantVars, dependentVars) = readData("i_data.txt", "d_data.txt");
@@ -175,27 +181,12 @@ int main(int argc, char **argv) {
     std::tie(b0, b1) = solveB0B1(meanX, meanY, sumX, sumY);
     std::cout << "Equaltion:\ny = " << b1 << "x + " << b0 << std::endl;
     std::cout << "15 years projected salary: $" << (b1 * 15 +b0) << std::endl;
+    std::cout << std::endl;
     
-    // r^2Distance between regression line values and the actual values
     // Quadratic Time
-    // Make a vector filled with the points in the form of a qudratic(Ax^2 + Bx + C = Y)
-    // So from the data from the files, the first thing would be A(1)^2 + B(1) + C = 5000.
-    // Do this for all the values
-    // The Matrix Should look like:
-    /* [ 1  1  1  5000]
-       [ 4  2  1  7500]
-       [ 9  3  1  15000]
-       [ 16  4  1  20000]
-       [ 25  5  1  66000]
-       [ 36  6  1  72000]
-       [ 49  7  1  74500]
-       [ 64  8  1  80000]
-       [ 81  9  1  82000]
-       [ 100  10  1  98000]
-    */
-    qudraticMatrix = buildMatrix(independantVars, dependentVars);
-    matrixMath::printMatrix(qudraticMatrix, 3);
-
+    quadraticMatrix = buildMatrix(independantVars, dependentVars, 10);
+    quadraticSolved = matrixMath::runGaussian("Quadratic Run", quadraticMatrix, 10);
+    std::cout << "Quadratic\n15 years projected salary: $" << solveQuadratic(quadraticSolved, 10, 15) << std::endl;
 
     return 0;
 }
