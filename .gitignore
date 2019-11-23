@@ -2,3 +2,5 @@ main
 *.exe
 lib/matrix.o
 .vscode
+*.mp4
+*.pdf
